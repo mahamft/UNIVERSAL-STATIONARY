@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | Universal Stationary</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <style>
+        :root {
+            --primary: #5dade2; 
+            --secondary: #f4d03f; 
+            --kids-blue: #4CC9FE;
+            --kids-pink: #FF4D91;
+            --kids-yellow: #FFF200;
+            --bg: #f0f4f8; 
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --border: #d6eaf8;
+            --nav-bg: rgba(255, 255, 255, 0.9);
+            --glow: rgba(93, 173, 226, 0.3);
+        }
+
+        body.dark-mode {
+            --bg: #1a252f;
+            --card-bg: #2c3e50;
+            --text: #ecf0f1;
+            --border: #34495e;
+            --nav-bg: rgba(26, 37, 47, 0.9);
+            --glow: rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            transition: all 0.4s ease;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, .navbar-brand { font-family: 'Fredoka', sans-serif; }
+
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+
+        .navbar {
+            background: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 4px solid var(--kids-blue);
+            padding: 15px 0;
+            z-index: 1000;
+        }
+        .navbar-brand { color: var(--kids-blue) !important; font-weight: 700; font-size: 1.8rem; text-decoration: none; }
+        
+        .btn-nav {
+            background: var(--kids-blue);
+            color: white !important;
+            border-radius: 50px;
+            padding: 8px 20px;
+            transition: 0.3s;
+            text-decoration: none;
+            font-weight: 700;
+            margin-left: 5px;
+            box-shadow: 0 4px 0 #3699C7;
+        }
+        .btn-nav:hover { transform: translateY(-3px); box-shadow: 0 6px 0 #3699C7; }
+
+        .contact-card {
+            width: 100%; max-width: 550px;
+            padding: 40px; 
+            border-radius: 40px;
+            background: var(--card-bg);
+            border: 5px solid var(--kids-blue);
+            box-shadow: 15px 15px 0px var(--glow);
+            margin-top: 130px;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .input-group-custom { position: relative; margin-bottom: 25px; }
+        .input-group-custom label { margin-bottom: 8px; display: block; color: var(--kids-blue); font-weight: 700; }
+        .input-group-custom input, .input-group-custom textarea {
+            width: 100%; padding: 12px 20px; 
+            background: var(--bg);
+            border: 2px solid var(--border); border-radius: 15px;
+            color: var(--text); outline: none; transition: 0.3s;
+        }
+        .input-group-custom input:focus { border-color: var(--kids-blue); box-shadow: 0 0 10px var(--glow); }
+
+        .btn-send {
+            width: 100%; padding: 15px; border: none; border-radius: 30px;
+            background: var(--kids-pink); color: white; font-weight: 700;
+            font-family: 'Fredoka'; font-size: 1.2rem;
+            box-shadow: 0 5px 0 #D6336C; transition: 0.2s;
+        }
+        .btn-send:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 7px 0 #D6336C; }
+
+        /* --- 3D ALERT STYLES --- */
+        .alert-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+            z-index: 9998; display: none;
+        }
+
+        #customAlert {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) perspective(1000px) rotateX(20deg) scale(0.5);
+            background: var(--card-bg); border: 6px solid var(--kids-blue);
+            border-radius: 40px; padding: 40px; z-index: 9999;
+            text-align: center; box-shadow: 0 20px 0 var(--kids-blue), 0 40px 60px rgba(0,0,0,0.3);
+            display: none; min-width: 350px; opacity: 0;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #customAlert.show {
+            display: block; opacity: 1;
+            transform: translate(-50%, -50%) perspective(1000px) rotateX(0deg) scale(1);
+        }
+
+        .alert-icon { font-size: 4rem; margin-bottom: 15px; display: block; animation: floatIcon 2s infinite ease-in-out; }
+
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-15px) rotate(10deg); }
+        }
+
+        .btn-alert {
+            background: var(--kids-yellow); border: 3px solid var(--text);
+            padding: 12px 40px; border-radius: 50px; font-weight: 700;
+            margin-top: 25px; box-shadow: 0 6px 0 var(--text); transition: 0.2s;
+            font-family: 'Fredoka'; color: #000;
+        }
+
+        #pigeon {
+            position: fixed; bottom: -100px; left: -100px;
+            font-size: 4rem; z-index: 5000; display: none; pointer-events: none;
+        }
+        @keyframes flyAway {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(120vw, -100vh) scale(2) rotate(20deg); opacity: 0; }
+        }
+
+        footer { background: var(--card-bg); border-top: 5px solid var(--secondary); padding: 60px 0 30px 0; margin-top: 80px; }
+
+        /* Requirement #8 Style */
+        .info-box {
+            background: #f8f9fa;
+            border-radius: 25px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 2px dashed var(--kids-blue);
+        }
+                .breadcrumb-section { margin-top: 110px; }
+
+    </style>
+</head>
+
+<body>
+    <div id="pigeon">✉️🕊️</div>
+
+    
+    <div class="container breadcrumb-section">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="index.html" style="color:var(--primary); text-decoration:none;">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Contact</li>
+            </ol>
+        </nav>
+    </div>
+
+
+    <div id="alertOverlay" class="alert-overlay"></div>
+    <div id="customAlert">
+        <span class="alert-icon">✉️</span>
+        <h3 id="alertTitle">MESSAGE SENT!</h3>
+        <p id="alertMessage">Our carrier pigeon is soaring to the nest!</p>
+        <button class="btn-alert" onclick="closeAlert()">AWESOME! 🚀</button>
+    </div>
+
+    <div id="canvas-container"></div> 
+    
+    <nav class="navbar fixed-top">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand" href="home.html">UNIVERSAL STATIONARY</a>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-outline-primary rounded-circle me-2" onclick="toggleTheme()" id="themeIcon">🌙</button>
+                <a href="index.html" class="btn-nav">Home</a>
+                <a href="shop.html" class="btn-nav">Shop</a>
+                <a href="about.html" class="btn-nav">About</a>
+                <a href="contact.html" class="btn-nav" style="background:var(--kids-pink); box-shadow: 0 4px 0 #D6336C;">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container d-flex flex-column align-items-center">
+        <div class="contact-card" data-tilt>
+            <h2 class="text-center mb-3" style="color:var(--kids-blue);">Get in Touch</h2>
+            
+            <!-- Requirement #8: Address & Mail Client Link -->
+            <div class="info-box text-center">
+                <p class="mb-2"><strong>📍 Visit the Shop:</strong><br>
+                123 Stationery Lane, Near Civic Center, Karachi, Pakistan</p>
+                
+                <p class="mb-0"><strong>📧 Email Us Directly:</strong><br>
+                <a href="mailto:info@universalstationary.com" style="color: var(--kids-pink); text-decoration: none; font-weight: 700;">
+                    info@universalstationary.com
+                </a><br>
+                <small class="text-muted">(Clicking the email opens your mail app)</small></p>
+            </div>
+            
+            <form id="contactForm">
+                <div class="input-group-custom">
+                    <label>Your Name</label>
+                    <input type="text" id="name" placeholder="e.g. Zainab" required>
+                </div>
+                <div class="input-group-custom">
+                    <label>Your Email</label>
+                    <input type="email" id="email" placeholder="hello@example.com" required>
+                </div>
+                <div class="input-group-custom">
+                    <label>Message</label>
+                    <textarea id="message" rows="3" placeholder="How can we help you?" required></textarea>
+                </div>
+                <button type="submit" class="btn-send" id="submitBtn">Fly My Message! 🚀</button>
+            </form>
+        </div>
+    </div>
+    
+
+     <footer>
+        <div class="container">
+            <div class="row g-4 text-center text-md-start">
+                <div class="col-md-6">
+                    <h3 style="color: var(--kids-blue);">UNIVERSAL STATIONARY</h3>
+                    <p>Leading provider of premium stationery items in Pakistan since 2026.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <h5 style="font-family: 'Fredoka';">Contact Information</h5>
+                    <p>📍 Aptech Learning North Nazimabad II Center<br>📞 +92 329 3007360 <br> info@universalstationary.com</p>
+                </div>
+            </div>
+            <hr class="mt-4" style="border-color: var(--kids-blue);">
+            <div class="text-center small opacity-50 pb-2">
+                &copy; 2026 Universal Stationary - All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        // --- THREE.JS BACKGROUND ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const bubbles = [];
+        for(let i=0; i<15; i++) {
+            const geometry = new THREE.SphereGeometry(Math.random() * 2, 16, 16);
+            const material = new THREE.MeshBasicMaterial({ color: 0x4CC9FE, wireframe: true, transparent: true, opacity: 0.2 });
+            const bubble = new THREE.Mesh(geometry, material);
+            bubble.position.set((Math.random()-0.5)*80, (Math.random()-0.5)*80, (Math.random()-0.5)*40);
+            scene.add(bubble);
+            bubbles.push(bubble);
+        }
+        camera.position.z = 50;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            bubbles.forEach(b => {
+                b.position.y += 0.02;
+                if(b.position.y > 40) b.position.y = -40;
+                b.rotation.x += 0.01;
+            });
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            document.getElementById('themeIcon').innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        }
+
+        VanillaTilt.init(document.querySelector(".contact-card"), { max: 5, speed: 400 });
+
+        function showNestAlert(title, message, emoji) {
+            const alertBox = document.getElementById('customAlert');
+            const overlay = document.getElementById('alertOverlay');
+            const icon = alertBox.querySelector('.alert-icon');
+            
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMessage').innerText = message;
+            if(emoji) icon.innerText = emoji;
+
+            overlay.style.display = 'block';
+            setTimeout(() => { alertBox.classList.add('show'); }, 10);
+            
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#4CC9FE', '#FF4D91', '#FFF200']
+            });
+        }
+
+        function closeAlert() {
+            const alertBox = document.getElementById('customAlert');
+            const overlay = document.getElementById('alertOverlay');
+            alertBox.classList.remove('show');
+            setTimeout(() => { overlay.style.display = 'none'; }, 400);
+        }
+
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const pigeon = document.getElementById('pigeon');
+            const btn = document.getElementById('submitBtn');
+
+            pigeon.style.display = 'block';
+            pigeon.style.animation = 'flyAway 2.5s forwards ease-in';
+            
+            btn.disabled = true;
+            btn.innerText = "Sending Message...";
+
+            setTimeout(() => {
+                showNestAlert("SENT! 🎉", "Our carrier pigeon is soaring with your message!", "✉️🕊️");
+                pigeon.style.display = 'none';
+                pigeon.style.animation = '';
+                btn.disabled = false;
+                btn.innerText = "Fly My Message! 🚀";
+                this.reset();
+            }, 2500);
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

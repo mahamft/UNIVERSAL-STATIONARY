@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop | Universal Stationary</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <style>
+        :root {
+            --kids-blue: #4CC9FE; --kids-yellow: #FFF200; --kids-pink: #FF4D91;
+            --kids-bg: #F0F9FF; --card-bg: #ffffff; --text-dark: #2D3436;
+            --nav-bg: rgba(255, 255, 255, 0.9);
+        }
+        body.dark-mode { --kids-bg: #0F172A; --card-bg: #1E293B; --text-dark: #F8FAFC; }
+        body { font-family: 'Quicksand', sans-serif; background-color: var(--kids-bg); transition: 0.5s; overflow-x: hidden; }
+        
+            .navbar {
+            background: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 4px solid var(--kids-blue);
+            padding: 15px 0;
+            z-index: 1000;
+        }
+        .navbar-brand { color: var(--kids-blue) !important; font-weight: 700; font-size: 1.8rem; }
+        
+        .btn-nav {
+            background: var(--kids-blue);
+            color: white !important;
+            border-radius: 50px;
+            padding: 8px 20px;
+            transition: 0.3s;
+            text-decoration: none;
+            font-weight: 700;
+            margin-left: 5px;
+            box-shadow: 0 4px 0 #3699C7;
+        }
+        .btn-nav:hover { transform: translateY(-3px); box-shadow: 0 6px 0 #3699C7; }
+
+
+
+        .product-card {
+            background: var(--card-bg); border-radius: 35px; padding: 20px; transition: 0.4s; 
+            cursor: pointer; height: 100%; box-shadow: 0 10px 20px rgba(0,0,0,0.05); position: relative;
+        }
+        .product-card:hover { transform: translateY(-10px); border: 4px solid var(--kids-yellow); }
+        .img-container { width: 100%; height: 180px; border-radius: 25px; overflow: hidden; background: #f8f8f8; display: flex; align-items: center; justify-content: center; }
+        .img-container img { max-height: 100%; max-width: 100%; object-fit: contain; }
+
+        .battle-btn { position: absolute; top: 15px; left: 15px; background: var(--kids-yellow); border: 2px solid var(--text-dark); border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; z-index: 10; }
+        .brand-badge { position: absolute; top: 15px; right: 15px; background: var(--kids-pink); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+
+        .category-pill { background: white; border: 2px solid var(--kids-blue); padding: 8px 25px; border-radius: 50px; font-weight: 700; color: var(--kids-blue); margin: 5px; }
+        .category-pill.active { background: var(--kids-pink); color: white; border-color: var(--kids-pink); }
+
+        #productModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 5000; backdrop-filter: blur(8px); }
+        .modal-content-pro { background: var(--card-bg); border-radius: 40px; padding: 30px; max-width: 800px; width: 90%; display: flex; gap: 20px; position: relative; border: 6px solid var(--kids-blue); }
+
+        /* Cart Sidebar */
+        #cartSidebar { position: fixed; right: -420px; top: 0; width: 400px; height: 100%; background: white; border-left: 8px solid var(--kids-yellow); z-index: 4000; padding: 30px; transition: 0.5s; }
+        #cartSidebar.active { right: 0; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar fixed-top">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand" href="index.html">UNIVERSAL STATIONARY</a>
+            <div class="d-flex align-items-center gap-2">
+                <a href="index.html" class="btn-nav">Home</a>
+                <a href="shop.html" class="btn-nav">Shop</a>
+                <a href="about.html" class="btn-nav">About</a>
+                <a href="contact.html" class="btn-nav">Contact</a>
+                <button class="btn-nav" style="background:var(--kids-yellow); color:black!important" onclick="window.location.href='compare.html'">⚔️ Battle Arena</button>
+                <button class="btn-nav" style="background:var(--kids-pink);" onclick="toggleCart()">🎒 Cart (<span id="cartCount">0</span>)</button>
+            </div>
+        </div>
+    </nav>
+
+
+
+    <div class="container" style="margin-top: 120px;">
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold" style="color: var(--kids-pink); font-family: 'Fredoka';">Universal Brand Catalog</h1>
+            <div id="categoryContainer" class="d-flex justify-content-center flex-wrap mt-4">
+                <button class="category-pill active" onclick="setCategory('all', this)">All Brands</button>
+                <button class="category-pill" onclick="setCategory('STAPLES', this)">Staples</button>
+                <button class="category-pill" onclick="setCategory('PARKER', this)">Parker</button>
+                <button class="category-pill" onclick="setCategory('Faber-Castell', this)">Faber-Castell</button>
+            </div>
+        </div>
+        <div class="row g-4" id="productGrid"></div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" onclick="if(event.target == this) closeModal()">
+        <div class="modal-content-pro">
+            <div style="flex: 1;"><img id="modalImg" src="" style="width:100%; border-radius: 20px;"></div>
+            <div style="flex: 1;">
+                <h2 id="modalTitle" style="color: var(--kids-blue);"></h2>
+                <h3 id="modalPrice" class="text-danger"></h3>
+                <p id="modalDesc" class="mt-3"></p>
+                <hr>
+                <a href="docs/stationary_specs.docx" class="btn btn-outline-dark w-100 mb-2 rounded-pill">📄 Download Full Specs (Word)</a>
+                <button id="modalAddBtn" class="btn btn-primary w-100 rounded-pill p-2">Add to Backpack 🎒</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div id="cartSidebar">
+        <h3>My Backpack 🎒</h3>
+        <hr>
+        <div id="cartItems" style="max-height: 70vh; overflow-y: auto;"></div>
+        <div class="mt-4">
+            <h4>Total: RS <span id="cartTotal">0</span></h4>
+            <button class="btn btn-success w-100 p-3 mt-2 rounded-pill" onclick="window.location.href='checkout.html'">Checkout Now</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+    <script>
+        // Your Dataset
+        const faberData = [
+  { id: "FC001", name: "Faber-Castell Classic Color Pencils 24pcs", brand: "Faber-Castell", price: 1699, desc: "A classic set of 24 vibrant colour pencils with smooth laydown, ideal for school art projects, colouring books, and creative drawing in Karachi schools and homes.", img: "https://img.drz.lazcdn.com/static/pk/p/1a2a4278458a0eec1cf5203d2edd6154.jpg_720x720q80.jpg_.webp" },
+  { id: "FC002", name: "Faber-Castell Classic Color Pencils 48pcs", brand: "Faber-Castell", price: 1800, desc: "Extended set of 48 rich and bright colour pencils with high quality pigments for bright, expressive artwork.", img: "https://img.drz.lazcdn.com/static/pk/p/0ab8b95539b21f2a57d159bc0957ec80.jpg_720x720q80.jpg_.webp" },
+  { id: "FC003", name: "Faber-Castell Polychromos Colour Pencils 12", brand: "Faber-Castell", price: 4800, desc: "Premium artist grade Polychromos pencils with intense colours and excellent lightfastness for professional and hobby artwork.", img: "https://img.drz.lazcdn.com/static/pk/p/2f450d50f49c421a62dbd2824be2ff34.jpg_720x720q80.jpg_.webp" },
+  { id: "FC004", name: "Faber-Castell Polychromos Colour Pencils 24", brand: "Faber-Castell", price: 9000, desc: "Larger set of professional coloured pencils offering a broad range of hues and smooth blending for detailed work.", img: "https://img.drz.lazcdn.com/static/pk/p/c6f38160e8f1bde5590c8f58cba72352.png_200x200q80.avif" },
+  { id: "FC005", name: "Faber-Castell Art & Graphic Compendium 53pcs", brand: "Faber-Castell", price: 48000, desc: "Comprehensive wooden box set with pencils, pastels, graphite tools and accessories — perfect for budding and serious artists in Karachi.", img: "https://stationers.pk/cdn/shop/products/FaberCastellMonochromewoodCaseSet.jpg?v=1677759293&width=700"},
+  { id: "FC006", name: "Faber-Castell Art & Graphic Compendium 125pcs", brand: "Faber-Castell", price: 78545, desc: "Complete art collection featuring pencils, markers, pastels and accessories in an elegant wooden case – ideal for workshops and studios.", img: "https://www.thestationerycompany.pk/cdn/shop/products/FaberCastell.png?v=1649138855&width=600" },
+  { id: "FC007", name: "Faber-Castell Art and Graphic Collection Set", brand: "Faber-Castell", price: 99450, desc: "Ultimate professional art set with extensive selection of Polychromos, Albrecht Durer watercolor pencils, pastels and tools — inspiring creation of masterpieces.", img: "https://stationers.pk/cdn/shop/products/FaberCastellCompendium125pcs.jpg?v=1677913037&width=900" },
+  { id: "FC008", name: "Faber-Castell Watercolour Set 12x12ml", brand: "Faber-Castell", price: 1900, desc: "Set of 12 vibrant watercolour tubes, perfect for learning watercolour painting techniques with rich, bright colours.", img: "https://img.drz.lazcdn.com/static/pk/p/49f7aaf61c29f1b957957dc9633d53ea.jpg_720x720q80.jpg_.webp" },
+  { id: "FC009", name: "Faber-Castell Acrylic Colour Pack 12x12ml", brand: "Faber-Castell", price: 1650, desc: "Acrylic paint set with 12 highly pigmented, mixable colours for canvas, paper and craft art.", img: "https://img.drz.lazcdn.com/static/pk/p/2aba341d2dbbc95e7aea8076907d8068.jpg_720x720q80.jpg_.webp" },
+  { id: "FC010", name: "Faber-Castell Watercolour Pencils 60 Piece Tin", brand: "Faber-Castell", price: 7899, desc: "Large tin of 60 watercolour pencils – excellent for expanding creative range and blending watercolour techniques.", img: "https://www.thestationerycompany.pk/cdn/shop/files/60-WaterColors1.png?v=1762106595&width=600" },
+
+];
+
+        const staplesData = [
+  { id: "ST001", name: "Heavy Duty Stapler 210 Sheets", brand: "STAPLES", price: 1899, desc: "Premium heavy-duty stapler capable of binding up to 210 sheets of paper at once. Strong metal build ensures durability in office and school environments in Karachi.", img: "https://img.drz.lazcdn.com/static/pk/p/4f0902cd927033753f2ac730ebbc8524.jpg_720x720q80.jpg_.webp" },
+  { id: "ST002", name: "Standard Desk Stapler 24/6", brand: "STAPLES", price: 650, desc: "Everyday desk stapler with ergonomic design and smooth stapling action. Ideal for classroom use, offices and home paperwork.", img: "https://img.drz.lazcdn.com/g/kf/S4a6dbdffd6b64bdf86a18b97cadd319bF.jpg_720x720q80.jpg_.webp" },
+  { id: "ST003", name: "Mini Stapler Portable", brand: "STAPLES", price: 420, desc: "Compact stapler that fits easily into pencil cases or bags. Great for students, travellers and home use.", img: "data:image/jpeg;base64,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" },
+  { id: "ST004", name: "Staple Pins Refill 24/6 Standard Pack", brand: "STAPLES", price: 350, desc: "Pack of 1000 high-quality staple pins compatible with most desk staplers. Rust-resistant and durable.", img: "https://stationers.pk/cdn/shop/products/StaplePin266_WhiteBox.jpg?v=1673353604&width=600" },
+  { id: "ST005", name: "Staple Pins Refill 26/6 Heavy Duty", brand: "STAPLES", price: 480, desc: "Heavy duty staple pins designed for robust stapling needs. Works with heavy duty staplers for thick documents.", img: "data:image/jpeg;base64,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" },
+  { id: "ST006", name: "3-Hole Punch Machine", brand: "STAPLES", price: 2299, desc: "Durable 3-hole punch with ergonomic handle and high capacity. Perfect for organizing binders and reports.", img: "https://img.drz.lazcdn.com/static/pk/p/2a66168750bd72ecc68118902e28e0eb.jpg_720x720q80.jpg_.webp" },
+  { id: "ST007", name: "Binder Clips Assorted Set", brand: "STAPLES", price: 599, desc: "Assorted binder clips in multiple sizes, ideal for securing stacks of paper without staples.", img: "https://img.drz.lazcdn.com/static/pk/p/72089e269f6f9a652995e59f04242dc4.jpg_200x200q80.avif" },
+  { id: "ST008", name: "Desk Tape Dispenser with Clear Tape", brand: "STAPLES", price: 780, desc: "Desktop tape dispenser with smooth cutting edge and a roll of clear tape for everyday use.", img: "https://stationers.pk/cdn/shop/products/ST01873.jpg?v=1673346386&width=600" },
+  { id: "ST009", name: "Whiteboard Markers Set 6pcs", brand: "STAPLES", price: 1199, desc: "Assorted color dry-erase markers for whiteboards and presentations, easy to erase and long-lasting.", img: "https://img.drz.lazcdn.com/static/pk/p/f603ff4eaadb7d1eb1ee7f2c01740fe9.jpg_720x720q80.jpg_.webp" },
+  { id: "ST010", name: "Ballpoint Pen Pack 10pcs", brand: "STAPLES", price: 550, desc: "Smooth writing ballpoint pens in a 10-pack with assorted colors for office and school work.", img: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAFwAXAMBIgACEQEDEQH/xAAbAAEAAQUBAAAAAAAAAAAAAAAAAQIEBQYHA//EADkQAAEDAwIDBQQGCwAAAAAAAAEAAgMEBRESIQYxQQcTIlFhFDJxgSNCU5GxwRUWFzM2UpKhosLw/8QAGAEBAAMBAAAAAAAAAAAAAAAAAAIDBAH/xAAiEQACAgIBAwUAAAAAAAAAAAAAAQIDERJRBBQxEyFBUnH/2gAMAwEAAhEDEQA/AO4oiIAiKCQBugJRa1DxhS1FPHUU9BcJYpHtYxzGx4Jds36+xJ6HcdQNlLuMrcKY1DYqp7GulDsMaC0RgOLt3bjS4EYySDyUdkXdvb4wbIi1o8Z272dk7YqhzXyyRNB7tm7ACTlzgMEEEb5V7bL9BdKiohpoZx3DnNMjw3SS0kHkSRuORAPXkikmcdNkVlozCIikVBERAEREAVLhkKpQ7kgNSpbXYRC+Vl0meZ3xfTPlGsd2SWb6cnGo+J2SepK9ILJwzQSx1Amh7qCMYZLM18Yw33t+ukD5BXDqClLTqtbQ4sLNpo8gbbA5+74dNlWKSm0OZ+jWaXDDh3kfmdvnz+JPqo6x4LfXs+xTLwzTMa15uFaxkJe6MZjIj1HLgMsO3xyve3WijhqpLlDUzVEkjHRh0jw7S0uDiMgAncD3s45DA2WvdsNxkoeEY4onA+2VUcLiercF/wDoFbdi80snCsrJHZDJTp9M9F3VeTjtm/Zs6IiIulYREQBERAFDuSlQeSAxFNCYTqidUt8W7DEN8ADB8x6/FZBsrizW4hno9mD+KtKiiLGRH22qBZK14ALPHj6p8Punr19VibzdA0PjY8RxtOJJBzJ/lC6k28IjKSiss17tkq6eSx0cTnt7xtWHAE4ydDvyyo7G6qOPhyaOTLXOn26jcLEcWVLKmxVIbA0Njw5jnbuBzjI8tifvWP7OqirbDGyGbTGapmpuOfLPRX9vJPV/pn7qGuy5wdyRAizmoIiIAiIgCpe5rBl7g0eZOFUtG7Z4e/4Dqo9t54OY2/eBdSbeEcbSWWbBcqtuqQskZlgw3xDmVodZUNqZ9njuWbRjPP1+a5fNSv1PL7FaMh2+mJw39PHhY+otctTUSTCkp4GHfTCBpYMdNyei10xsredcmO/S6ONsI7RxJYTBwPca6pce9MTTHGDs0F7dz6r37JqOnksVU+anhfK2qd43MBIIPn8lXcG6OxGmaT7tppgT8AxR2MO1cKzOJyTMST5lUWWSm8yL6qYQjrFex0RERVFwREQBERAFbXChpLjTGmuFNFUwEgmOVgc0kbjYq5UFAaTceHeE6ynkht9Bae+kiIZohZnJB0kHHn+C0KjtlBQXeA1dtonsa7L2GFpbg5G+y61TWWSnm72OqY1xGHOZTNBIzkj/ALzK1jjSwujq/bIW/RP2JA2afI/kfktnTWZbg35MHWQcUpx+C/43NL+zi4xUMbIoYqZrGRMAAjAc3DQOgWL7E/4Skz9sVY01wcy3y0FdE2WB7NDS7HhHrnYhT2fXWloLXHSiRzHyzhgY1hAPJv8AdVWUTg8F1XU1zjnJ1NECKg0hERAEREBBC85Y9TcBzgfMHC9UQFp7M77ab+sqh9F3jCx8sjmuGC1ziQR8FfIgMH+rVu6wf5FIOGbXDIx8dIxpY4OBBOxBys4ilvLkh6cOEQApRFEmEREB/9k=" },
+]
+
+        const parkerData = [
+  { id: "PK001", name: "Parker Jotter Original CT Ballpoint Pen", brand: "PARKER", price: 4000, desc: "Iconic Jotter ballpoint with classic design, smooth ink flow and signature arrow clip, perfect for daily writing, notes, school and office use in Karachi.", img: "https://stationers.pk/cdn/shop/products/71ShF2dBObL._AC_SL1500.jpg?v=1674799079&width=600" },
+  { id: "PK002", name: "Parker Jotter Original CT Fountain Pen", brand: "PARKER", price: 5760, desc: "Stylish Jotter fountain pen with reliable ink feed and ergonomic grip, ideal for formal writing and journaling.", img: "https://stationeryart.pk/wp-content/uploads/2023/04/Parker-Jotter-Original-CT-Fountain-Pen-m.webp" },
+  { id: "PK003", name: "Parker Vector Stainless Steel Fountain Pen", brand: "PARKER", price: 7000, desc: "Durable stainless steel barrel fountain pen with smooth nib and balanced weight, great for both beginners and experienced writers.", img: "https://stationers.pk/cdn/shop/products/ParkerVectorFpS.Steel1.jpg?v=1673348929&width=1200" },
+  { id: "PK004", name: "Parker IM Monochrome Ballpoint Pen", brand: "PARKER", price: 14500, desc: "Elegant monochrome ballpoint pen with polished finish and gift box presentation, suitable for professional use and gifting.", img: "https://newellbrands.imgix.net/5408a7c9-390f-3fe5-8b84-a115a4df57f1/5408a7c9-390f-3fe5-8b84-a115a4df57f1.psd?auto=format,compress&w=1188" },
+  { id: "PK005", name: "Parker Jotter Core CT Ballpoint Pen", brand: "PARKER", price: 7750, desc: "Core collection ballpoint with vibrant colours and smooth writing performance, ideal for everyday tasks.", img: "https://newellbrands.imgix.net/6d5ae76f-6f9e-31e7-a6a6-6957b1c9dea0/6d5ae76f-6f9e-31e7-a6a6-6957b1c9dea0.png?auto=format,compress&w=1188" },
+  { id: "PK006", name: "Parker Jotter XL Ballpoint Pen", brand: "PARKER", price: 9000, desc: "Larger XL Jotter for comfortable grip and enhanced writing experience, featuring timeless design elements.", img: "https://newellbrands.imgix.net/9b7aa07a-dd1f-34a5-b841-f005d8eeb9df/9b7aa07a-dd1f-34a5-b841-f005d8eeb9df.jpeg?fm=jpg&q=85&w=1188" },
+  { id: "PK007", name: "Parker Vector Standard CT Ballpoint Pen", brand: "PARKER", price: 3200, desc: "Affordable Parker ballpoint with classic look and reliable ink, ideal for students and daily users.", img: "https://newellbrands.imgix.net/644a102a-fa61-3940-af94-eabbdc28e979/644a102a-fa61-3940-af94-eabbdc28e979.psd?auto=format,compress&w=1188" },
+  
+  
+]
+
+
+        // Combining all for initial load (Maine yahan structure diya hai, aap apna poora JSON yahan paste karein)
+        const allProducts = [...faberData, ...staplesData, ...parkerData];
+        
+        let cart = JSON.parse(localStorage.getItem('universalCart')) || [];
+        let currentBrand = 'all';
+
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '';
+            const filtered = currentBrand === 'all' ? allProducts : allProducts.filter(p => p.brand === currentBrand);
+
+            filtered.forEach(item => {
+                grid.innerHTML += `
+                <div class="col-md-4 mb-4">
+                    <div class="product-card" onclick="openModal('${item.name}', ${item.price}, '${item.img}', '${item.desc}')">
+                        <span class="brand-badge">${item.brand}</span>
+                        <button class="battle-btn" onclick="addToCompare(event, '${item.name}', ${item.price}, '${item.img}', '${item.brand}')">⚔️</button>
+                        <div class="img-container"><img src="${item.img}"></div>
+                        <h5 class="mt-3 fw-bold">${item.name}</h5>
+                        <p class="text-primary fw-bold">RS ${item.price}</p>
+                    </div>
+                </div>`;
+            });
+            VanillaTilt.init(document.querySelectorAll(".product-card"));
+        }
+
+        function setCategory(brand, btn) {
+            currentBrand = brand;
+            document.querySelectorAll('.category-pill').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderProducts();
+        }
+
+        function addToCompare(e, name, price, img, brand) {
+            e.stopPropagation();
+            let list = JSON.parse(localStorage.getItem('compareList')) || [];
+            if(list.length >= 2) list.shift();
+            list.push({name, price, img, brand});
+            localStorage.setItem('compareList', JSON.stringify(list));
+            alert("Added to Battle Arena! ⚔️");
+        }
+
+        function openModal(name, price, img, desc) {
+            document.getElementById('modalTitle').innerText = name;
+            document.getElementById('modalPrice').innerText = "RS " + price;
+            document.getElementById('modalImg').src = img;
+            document.getElementById('modalDesc').innerText = desc;
+            document.getElementById('productModal').style.display = 'flex';
+            document.getElementById('modalAddBtn').onclick = () => {
+                cart.push({name, price});
+                localStorage.setItem('universalCart', JSON.stringify(cart));
+                updateCart();
+                closeModal();
+            };
+        }
+
+        function toggleCart() { document.getElementById('cartSidebar').classList.toggle('active'); }
+        function closeModal() { document.getElementById('productModal').style.display = 'none'; }
+
+        function updateCart() {
+            const itemsDiv = document.getElementById('cartItems');
+            document.getElementById('cartCount').innerText = cart.length;
+            let total = 0;
+            itemsDiv.innerHTML = cart.map((item, i) => {
+                total += item.price;
+                return `<div class="d-flex justify-content-between border-bottom p-2">
+                    <span>${item.name}</span><strong>RS ${item.price}</strong>
+                </div>`;
+            }).join('');
+            document.getElementById('cartTotal').innerText = total;
+        }
+
+        window.onload = () => { renderProducts(); updateCart(); };
+
+      
+    </script>
+    
+     <footer>
+        <div class="container">
+            <div class="row g-4 text-center text-md-start">
+                <div class="col-md-6">
+                    <h3 style="color: var(--kids-blue);">UNIVERSAL STATIONARY</h3>
+                    <p>Leading provider of premium stationery items in Pakistan since 2026.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <h5 style="font-family: 'Fredoka';">Contact Information</h5>
+                    <p>📍 Aptech Learning North Nazimabad II Center<br>📞 +92 329 3007360 <br> info@universalstationary.com</p>
+                </div>
+            </div>
+            <hr class="mt-4" style="border-color: var(--kids-blue);">
+            <div class="text-center small opacity-50 pb-2">
+                &copy; 2026 Universal Stationary - All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Battle | Universal Stationary</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <style>
+        :root { --kids-blue: #4CC9FE; --kids-pink: #FF4D91; --kids-yellow: #FFF200; }
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: #f0f4f8; min-height: 100vh; padding-top: 50px;
+        }
+        .compare-card {
+            background: white; border-radius: 40px; padding: 30px; 
+            border: 5px solid var(--kids-blue); box-shadow: 0 15px 0 var(--kids-blue);
+            text-align: center; height: 100%; transition: 0.3s;
+        }
+        .vs-badge {
+            background: var(--kids-pink); color: white; width: 60px; height: 60px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; position: absolute; left: -30px; top: 45%; z-index: 5; border: 4px solid white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container text-center mb-5">
+        <h1 class="display-4 fw-bold" style="color: var(--kids-blue);">Brand Battle Arena ⚔️</h1>
+        <p>Compare the best of Universal Stationary side-by-side.</p>
+    </div>
+
+    <div class="container">
+        <div id="compareGrid" class="row justify-content-center g-5"></div>
+        
+        <div class="text-center mt-5">
+            <button class="btn btn-primary rounded-pill px-5" onclick="window.location.href='shop.html'">Back to Shop</button>
+            <button class="btn btn-outline-danger rounded-pill px-5 ms-2" onclick="clearCompare()">Reset Battle</button>
+        </div>
+    </div>
+
+    <script>
+        function render() {
+            const grid = document.getElementById('compareGrid');
+            const list = JSON.parse(localStorage.getItem('compareList')) || [];
+
+            if(list.length === 0) {
+                grid.innerHTML = "<h3>Arena is empty! Go to shop and click ⚔️</h3>";
+                return;
+            }
+
+            grid.innerHTML = list.map((item, index) => `
+                <div class="col-md-5 position-relative animate__animated animate__fadeIn">
+                    ${index === 1 ? '<div class="vs-badge">VS</div>' : ''}
+                    <div class="compare-card">
+                        <img src="${item.img}" style="height:150px; object-fit:contain;">
+                        <h3 class="mt-3">${item.name}</h3>
+                        <p class="badge bg-primary">${item.brand}</p>
+                        <h4 class="text-danger">RS ${item.price}</h4>
+                        <hr>
+                        <button class="btn btn-success w-100 rounded-pill">Choose This Winner!</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearCompare() {
+            localStorage.removeItem('compareList');
+            location.reload();
+        }
+
+        window.onload = render;
+    </script>
+</body>
+</html>
